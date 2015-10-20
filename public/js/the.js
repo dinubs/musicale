@@ -20979,7 +20979,7 @@ var Content = React.createClass({
   },
   playFromTrid: function playFromTrid(trid) {
     player.pause();
-    var url = 'http://localhost:3000/api/get/' + trid;
+    var url = 'http://musicale.herokuapp.com/api/get/' + trid;
     fetch(url).then(function (response) {
       return response.text();
     }).then(function (url) {
@@ -21063,7 +21063,7 @@ var Content = React.createClass({
   },
   updateTracks: function updateTracks(q) {
     var self = this;
-    fetch('http://localhost:3000/api/search?q=' + q).then(function (response) {
+    fetch('http://musicale.herokuapp.com/api/search?q=' + q).then(function (response) {
       return response.json();
     }).then(function (json) {
       self.setState({ tracks: json });

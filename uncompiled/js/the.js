@@ -130,7 +130,7 @@ var Content = React.createClass({
   },
   playFromTrid(trid) {
     player.pause();
-    var url = 'http://localhost:3000/api/get/' + trid;
+    var url = 'http://musicale.herokuapp.com/api/get/' + trid;
     fetch(url)
       .then(function(response) {
         return response.text();
@@ -215,7 +215,7 @@ var Content = React.createClass({
   },
   updateTracks: function(q) {
     var self = this; 
-    fetch('http://localhost:3000/api/search?q=' + q)
+    fetch('http://musicale.herokuapp.com/api/search?q=' + q)
       .then(function(response) {
         return response.json();
       }).then(function(json) {
