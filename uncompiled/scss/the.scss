@@ -30,7 +30,7 @@ a {
   }
 }
 
-.content {
+.wrap, .content {
   max-width: 32em;
   width: 100%;
   margin: 0 auto;
@@ -54,7 +54,7 @@ a {
       opacity: 1;
     }
   }
-  
+
   .info {
     vertical-align: top;
     display: inline-block;

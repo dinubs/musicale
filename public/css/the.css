@@ -18,7 +18,7 @@ a {
   a:hover {
     color: #e01f40; }
 
-.content {
+.wrap, .content {
   max-width: 32em;
   width: 100%;
   margin: 0 auto; }
