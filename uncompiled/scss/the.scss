@@ -1,5 +1,6 @@
 @import url(https://fonts.googleapis.com/css?family=Oswald);
 @import url(https://fonts.googleapis.com/css?family=Lato);
+@import url(http://fonts.googleapis.com/css?family=Merriweather+Sans:700);
 
 * {
   margin: 0;
@@ -150,6 +151,13 @@ input {
     top: calc(50% + 5px);
     transform: translateY(-50%);
   }
+
+  .ext-link {
+    position: absolute;
+    right: 65px;
+    top: calc(50% + 5px);
+    transform: translateY(-50%); 
+  }
 }
 
 
@@ -211,4 +219,127 @@ input {
       margin-left: 5px;
     }
   }
+}
+
+.show {
+  img {
+    width: 100%;
+  }
+
+  .playButton {
+    width: 100%;
+    padding: 15px;
+    color: #fff;
+    background-color: $green;
+    border: none;
+  }
+}
+
+.bars {
+    height: 30px;
+    left: 50%;
+    position: fixed;
+    top: 25%;
+    width: 40px;
+    transform: translate(-50%, -50%);
+}
+span {
+  color: $blue;
+  font-size: 12px;
+  position: absolute;
+  width: 100%;
+  bottom: -17px; 
+  text-align: center;
+  font: normal 12px/1em "Merriweather Sans", sans-serif;
+  letter-spacing: 2px;
+}
+
+.bar {
+  background: $green;
+  bottom: 1px;
+  height: 3px;
+  position: absolute;
+  width: 5px;      
+  animation: sound 0ms -800ms ease-in-out infinite alternate, colors 0ms -800ms linear infinite alternate;
+}
+@keyframes colors {
+  0% {
+    color: $green;
+  }
+  100% {
+    color: $blue;
+  }
+}
+@keyframes sound {
+    0% {
+        height: 3px; 
+    }
+    100% {
+        height: 28px;        
+    }
+}
+
+@for $i from 0 through 9 {
+  .bar:nth-child(#{$i + 1})  { 
+    left: #{$i * 6 + 5}px; 
+    animation-duration: #{400 + random(100)}ms; 
+
+  }
+}
+
+.out {
+  border-radius: 2px;
+  border: 5px solid $gray;
+  height: 30px;
+  width: 30px;
+  position: relative;
+  box-sizing: border-box;
+  display: inline-block;
+  
+  transition: all 0.3s;
+  
+  &:before {
+    content: '';
+    display: block;
+    width: 5px;
+    height: 15px;
+    transform: rotate(45deg);
+    background-color: $gray;
+
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    
+    transition: all 0.3s;
+  }
+  
+  &:after {
+    content: '';
+    display: block;
+    
+    transform: rotate(45deg);
+
+    position: absolute;
+    bottom: 6px;
+    left: 5px;
+    
+    border: 7px solid transparent;
+    border-bottom-color: $gray;
+    
+    transition: all 0.3s;
+    
+  }
+  
+  &:hover {
+    border-color: $green;
+    
+    
+    &:before {
+      background-color: $green;
+    }
+    &:after {
+      border-bottom-color: $green;
+    }
+  }
+  
 }

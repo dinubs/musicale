@@ -1,0 +1,7 @@
+extends ../layouts/application
+
+block content
+  .wrap
+    img(src='/api/get/' + track.id + '/image')
+    h2=track.title
+    h3=track.artist

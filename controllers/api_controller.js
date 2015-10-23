@@ -44,6 +44,12 @@ module.exports = {
       res(body.response.track.info.url);
     });
   },
+  get_info: function(req, res) {
+    var pars = '?id=' + req.params.trid + '&format=json&api_key=' + api_key + '&bucket=audio_summary';
+    request.get({url: track_info + pars, json:true}, function(e,r,body) {
+      res(body.response.track);
+    });
+  },
   get_image: function(req, res) {
     var pars = '?id=' + req.params.trid + '&format=json&api_key=' + api_key + '&bucket=audio_summary';
     var url = 'https://itunes.apple.com/search?entity=musicTrack&term=' + req.params.trid;
@@ -53,6 +59,18 @@ module.exports = {
       } else {
         var original = os.tmpdir() + '/' + req.params.trid;
         res.redirect(body.results[0].artworkUrl100);            
+      }
+    });
+  },
+  get_full_image: function(req, res) {
+    var pars = '?id=' + req.params.trid + '&format=json&api_key=' + api_key + '&bucket=audio_summary';
+    var url = 'https://itunes.apple.com/search?entity=musicTrack&term=' + req.params.trid;
+    request.get({url: url, json: true}, function(e, r, body) {
+      if (body.resultCount === 0) {
+        res.redirect('/images/artwork.png');
+      } else {
+        var original = os.tmpdir() + '/' + req.params.trid;
+        res.redirect(body.results[0].artworkUrl100.replace(/100x100/g, '500x500'));            
       }
     });
   }

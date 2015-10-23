@@ -2,6 +2,10 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 require('./fetch');
 
+var Router = require('react-router').Router
+var Route = require('react-router').Route
+var Link = require('react-router').Link
+
 var _ = require('underscore');
 
 var player = new Audio();
@@ -97,29 +101,116 @@ var NowPlayingBar = React.createClass({
           <p>{this.props.track.title}</p>
           <p>{this.props.track.artist}</p>
         </div>
+        <Link className='ext-link' to={'/track/' + this.props.track.trid}><div className='out'></div></Link>
         <div className={'play ' + playClass} onClick={this.props.togglePlay}>
         </div>
       </div>
     )
   }
+});
+
+var Loader = React.createClass({
+  render: function() {
+    return (
+      <div className='bars'>
+        <div className='bar' />
+        <div className='bar'/>
+        <div className='bar'/>
+        <div className='bar'/>
+        <div className='bar'/>
+        <div className='bar'/>
+        <div className='bar'/>
+        <div className='bar'/>
+        <div className='bar'/>
+        <div className='bar'/>
+        <span>LOADING</span>
+      </div>
+    )
+  }
 })
 
-var player = new Audio();
+var ShowTrack = React.createClass({
+  getInitialState: function() {
+    return {
+      track: {},
+      loaded: false
+    }
+  },
+  componentDidMount: function() {
+    var url = 'http://localhost:3000/api/get/' + this.props.params.trid + '/info';
+    var self = this;
+    fetch(url)
+      .then(function(response) {
+        return response.json();
+      }).then(function(data) {
+        self.setState({'track': data, 'loaded': true});
+      });
+  },
+  play: function() {
+    var tempTrack = this.state.track;
+    tempTrack.trid = tempTrack.id;
+    this.props.playTrack(tempTrack);
+  },
+  render: function() {
+    if (!this.state.loaded) {
+      return (
+        <Loader />
+      );
+    }
+    return (
+      <div className='show'>
+        <h1>{this.state.track.title}</h1>      
+        <h2>{this.state.track.artist}</h2>
+        <img className='track-artwork' onClick={this.play} src={'/api/get/' + this.state.track.title + ' ' + this.state.track.artist + '/image/full'} />
+        <button className='playButton' onClick={this.play}>Play</button>
+      </div>
+    );
+  }
+});
 
-var Content = React.createClass({
+var Home = React.createClass({
+  updateTracks: function(q) {
+    this.props.onSubmit(q);
+  },
+  playTrack: function(trid) {
+    this.props.playTrack(trid);
+  },
+  render: function() {
+    return (
+      <div>
+        <h1>Musicale</h1>
+        <p>Search any track or artist and listen to it, thats pretty much it.</p>
+        <Search onSubmit={this.updateTracks} />
+        <TrackList tracks={this.props.tracks} playTrack={this.playTrack} />
+      </div>
+    );
+  }
+})
+
+window.player = new Audio();
+
+var App = React.createClass({
   trackFinished: function() {
     this.next();
   },
   trackProgress: function() {
-    var progress = player.currentTime / player.duration * 100;
+    var progress = window.player.currentTime / window.player.duration * 100;
     this.setState({progress: progress});
   },
   trackCanPlay: function() {
     this.setState({playing: true});
   },
+  playTrackFromShowpage(track) {
+    var arr = [track];
+    this.setState({nowPlayingTracks: arr, currentTrackIndex: 0});
+    this.setState({currentTrack: track});
+    this.setState({playing: false});
+    this.setState({musicStarted: true});
+
+    this.playFromTrid(track.id);
+  },
   playTrack: function(trid) {
     var i = this.state.tracks.findByIndex('trid', trid);
-    this.setState({playing: false});
     this.setState({currentTrackIndex: i});
     this.setState({nowPlayingTracks: this.state.tracks});
     this.setState({currentTrack: this.state.tracks[i]});
@@ -129,23 +220,24 @@ var Content = React.createClass({
     this.playFromTrid(trid);
   },
   playFromTrid(trid) {
-    player.pause();
-    var url = 'http://musicale.herokuapp.com/api/get/' + trid;
+    window.player.pause();
+    var url = 'http://localhost:3000/api/get/' + trid;
+    window.player.src = '';
     fetch(url)
       .then(function(response) {
         return response.text();
       }).then(function(url) {
-        player.src = url;
-        player.play();
+        window.player.src = url;
+        window.player.play();
       });
   },
   toggle: function() {
-    if (player.paused) {
-      player.play();
+    if (window.player.paused) {
+      window.player.play();
     } else {
-      player.pause();
+      window.player.pause();
     }
-    this.setState({playing: !player.paused});
+    this.setState({playing: !window.player.paused});
   },
   prev: function() {
     console.log('prev');
@@ -198,10 +290,12 @@ var Content = React.createClass({
     } 
   },
   componentDidMount: function() {
-    player.addEventListener('ended', this.trackFinished);
-    player.addEventListener('timeupdate', this.trackProgress);
-    player.addEventListener('canplay', this.trackCanPlay);
+    window.player.addEventListener('ended', this.trackFinished);
+    window.player.addEventListener('timeupdate', this.trackProgress);
+    window.player.addEventListener('canplay', this.trackCanPlay);
     window.addEventListener('keyup', this.keypress);
+
+    console.log('mounted');
   },
   getInitialState: function() {
     return {
@@ -215,12 +309,20 @@ var Content = React.createClass({
   },
   updateTracks: function(q) {
     var self = this; 
-    fetch('http://musicale.herokuapp.com/api/search?q=' + q)
+    fetch('http://localhost:3000/api/search?q=' + q)
       .then(function(response) {
         return response.json();
       }).then(function(json) {
         self.setState({tracks: json});
       });
+  },
+  renderChildren: function () {
+    if (!this.props.children) return;
+    return React.Children.map(this.props.children, function (child) {
+      return React.cloneElement(child, {
+        playTrack: this.playTrackFromShowpage
+      });
+    }.bind(this));
   },
   render: function() {
     var nowPlayingBar = '';
@@ -229,12 +331,17 @@ var Content = React.createClass({
     }
     return (
       <div>
-        <Search onSubmit={this.updateTracks} />
-        <TrackList tracks={this.state.tracks} playTrack={this.playTrack} />
+        {this.renderChildren() || <Home onSubmit={this.updateTracks} tracks={this.state.tracks} playTrack={this.playTrack} />}
         {nowPlayingBar}
       </div>
     );
   }
-})
+});
 
-ReactDOM.render(<Content />, document.querySelector('.content'));
+ReactDOM.render((
+  <Router>
+    <Route path="/" component={App}>
+      <Route path="track/:trid" component={ShowTrack}/>
+    </Route>
+  </Router>
+), document.querySelector('.content'))
