@@ -137,7 +137,7 @@ var ShowTrack = React.createClass({
     }
   },
   componentDidMount: function() {
-    var url = 'http://localhost:3000/api/get/' + this.props.params.trid + '/info';
+    var url = 'http://musicale.herokuapp.com/api/get/' + this.props.params.trid + '/info';
     var self = this;
     fetch(url)
       .then(function(response) {
@@ -221,7 +221,7 @@ var App = React.createClass({
   },
   playFromTrid(trid) {
     window.player.pause();
-    var url = 'http://localhost:3000/api/get/' + trid;
+    var url = 'http://musicale.herokuapp.com/api/get/' + trid;
     window.player.src = '';
     fetch(url)
       .then(function(response) {
@@ -309,7 +309,7 @@ var App = React.createClass({
   },
   updateTracks: function(q) {
     var self = this; 
-    fetch('http://localhost:3000/api/search?q=' + q)
+    fetch('http://musicale.herokuapp.com/api/search?q=' + q)
       .then(function(response) {
         return response.json();
       }).then(function(json) {
