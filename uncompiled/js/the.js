@@ -166,7 +166,7 @@ var ShowTrack = React.createClass({
       </div>
     );
   }
-});
+}); 
 
 var Home = React.createClass({
   updateTracks: function(q) {
